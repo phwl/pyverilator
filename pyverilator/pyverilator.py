@@ -446,8 +446,20 @@ class PyVerilator:
         verilator_h_file = os.path.join(build_dir, 'V' + verilog_module_name + '.h')
 
         def search_for_signal_decl(signal_type, line):
+            # Local signals are [A-Z]Data*
+            lresult = re.search('[A-Z]Data/\*([0-9]+):([0-9]+)\*/ ([^;]+)', line)
+            if lresult:
+                signal_name = lresult.group(3)
+                signal_width = int(lresult.group(1)) - int(lresult.group(2)) + 1
+                if signal_type == 'SIG':
+                    if signal_name.startswith(verilog_module_name) and '[' not in signal_name:
+                        return (signal_name, signal_width)
+                    else:
+                        return None
+
             # looks for VL_IN*, VL_OUT*, or VL_SIG* macros
             result = re.search('(VL_' + signal_type + r'[^(]*)\(([^,]+),([0-9]+),([0-9]+)(?:,[0-9]+)?\);', line)
+
             if result:
                 signal_name = result.group(2)
                 if signal_type == 'SIG':
