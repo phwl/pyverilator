@@ -8,7 +8,8 @@ import warnings
 import sys
 from keyword import iskeyword
 import pyverilator.verilatorcpp as template_cpp
-import tclwrapper
+
+# import tclwrapper
 
 def verilator_name_to_standard_modular_name(verilator_name):
     """Converts a name exposed in Verilator to its standard name.
@@ -462,6 +463,8 @@ class PyVerilator:
 
             if result:
                 signal_name = result.group(2)
+                if signal_name.startswith("&"): signal_name = signal_name[1:]
+
                 if signal_type == 'SIG':
                     if signal_name.startswith(verilog_module_name) and '[' not in signal_name and int(
                             result.group(4)) == 0:
@@ -794,6 +797,7 @@ class PyVerilator:
                     self.gtkwave_tcl.eval('gtkwave::setWindowStartTime %d' % (window_start_time + time_shift_amt))
 
     def start_gtkwave(self):
+        import tclwrapper
         if self.vcd_filename is None:
             self.start_vcd_trace(PyVerilator.default_vcd_filename)
         # in preparation for using tclwrapper with gtkwave, add a warning filter
