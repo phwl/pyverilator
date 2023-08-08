@@ -463,6 +463,8 @@ class PyVerilator:
 
             if result:
                 signal_name = result.group(2)
+                if signal_name.startswith("&"): signal_name = signal_name[1:]
+
                 if signal_type == 'SIG':
                     if signal_name.startswith(verilog_module_name) and '[' not in signal_name and int(
                             result.group(4)) == 0:
